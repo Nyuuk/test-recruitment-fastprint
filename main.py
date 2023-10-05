@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-from models import ProductModel, CategoryModel, StatusModel
+from models import ProductModel, CategoryModel, StatusModel, url_database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fromAPI import start as stGetApi
@@ -7,7 +7,6 @@ from fromAPI import start as stGetApi
 
 app = Flask(__name__)
 
-url_database = "mysql+mysqlconnector://root:1234@localhost/applicant_job_test"
 engine = create_engine(url_database)
 
 

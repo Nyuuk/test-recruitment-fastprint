@@ -4,6 +4,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 
 Base = declarative_base()
 
+url_database = "mysql+mysqlconnector://root:1234@some-mysql/applicant_job_test"
+
 class CategoryModel(Base):
     __tablename__ = 'categories'
 

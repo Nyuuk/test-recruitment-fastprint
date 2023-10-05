@@ -2,13 +2,13 @@ import requests
 import hashlib
 import datetime
 import json
-from models import CategoryModel, StatusModel, ProductModel
+from models import CategoryModel, StatusModel, ProductModel, url_database
 
 from sqlalchemy import create_engine, update
 from sqlalchemy.orm import sessionmaker
 
 # Membuat object connection DB
-engine = create_engine("mysql+mysqlconnector://root:1234@localhost/applicant_job_test")
+engine = create_engine(url_database)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -106,4 +106,4 @@ def start():
     to_status(dataStatus)
     to_product(datas)
 
-start()
+#start()
