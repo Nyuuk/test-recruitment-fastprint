@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from models import ProductModel, CategoryModel, StatusModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -19,7 +19,7 @@ def refresh_data():
     stGetApi()
     return jsonify({"code": 200}), 200
 
-@app.route('/api/getall', methods=["GET"])
+@app.route('/api/products/getall', methods=["GET"])
 def getAll():
     id_bisadijual = session.query(StatusModel).filter_by(nama_status="bisa dijual").first().id_status
     data = session.query(ProductModel).filter_by(status_id=id_bisadijual).all()
@@ -36,6 +36,47 @@ def getAll():
         "code" : 200
     }), 200
 
+@app.route('/api/products/<int:id>', methods=["PUT", "DELETE"])
+def productsEdDel(id):
+    dataRequest = []
+    if request.headers.get('Content-Type') == "application/json":
+        dataRequest = request.json
+    else:
+        dataRequest = request.form
+
+    print(request.headers.get("Content-Type"))
+    if request.method == "PUT":
+        # Validasi Request
+        if not dataRequest or not dataRequest.get('nama_produk'):
+            return {
+                "code" : 400,
+                "message" : "Bad Request"
+            }, 400
+        if dataRequest.get('harga') and not dataRequest.get('harga').isdigit():
+            return {
+                "code" : 4001,
+                "message" : "Bad Request"
+            }, 400
+
+
+        dataDB = session.query(ProductModel).filter_by(id_produk=id).first()
+        data = {
+            "nama_produk" : dataRequest.get('nama_produk') or dataDB.nama_produk,
+            "harga" : dataRequest.get('harga') or dataDB.harga,
+            "kategori_id": dataRequest.get('kategori_id') or dataDB.kategori_id,
+            "status_id": dataRequest.get('status_id') or dataDB.status_id
+        }
+        session.query(ProductModel).filter_by(id_produk=id).update(dataRequest)
+        session.commit()
+        return {
+            "code" : 200
+        }, 200
+    elif request.method == "DELETE":
+        session.query(ProductModel).filter_by(id_produk=id).delete()
+        session.commit()
+        return {
+            "code" : 200
+        }, 200
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000)
