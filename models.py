@@ -1,57 +1,43 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-
-db = SQLAlchemy()
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import Column, Integer, String, ForeignKey
 
 
-# Model Produk
-class ProductModel(db.Model):
+Base = declarative_base()
+
+class CategoryModel(Base):
+    __tablename__ = 'categories'
+
+    id_kategori = Column(Integer, autoincrement=True, primary_key=True)
+    nama_kategori = Column(String)
+
+    def __repr__(self):
+        return "<CategoryModel(id_kategori='%s',nama_kategori='%s')>" % (self.id_kategori, self.nama_kategori)
+
+
+class StatusModel(Base):
+    __tablename__ = 'status'
+
+    id_status = Column(Integer, autoincrement=True, primary_key=True)
+    nama_status = Column(String)
+
+    def __repr__(self):
+        return "<StatusModel(id_status='%s', nama_status='%s')>" % (self.id_status, self.nama_status)
+
+
+class ProductModel(Base):
     __tablename__ = 'products'
 
-    id_produk = db.Column(db.Integer, primary_key=True)
-    nama_produk = db.Column(db.String(100))
-    harga = db.Column(db.Integer)
-    kategori_id = db.Column(db.Integer, ForeignKey('categories.id_kategori'))
-    status_id = db.Column(db.Integer, ForeignKey('statuses.id_status'))
+    id_produk = Column(Integer, autoincrement=True, primary_key=True)
+    nama_produk = Column(String)
+    harga = Column(Integer)
 
-    # Menambahkan relasi dengan CategoryModel dan StatusModel
+    # Menambahkan kolom kategori_id yang merupakan kunci asing ke tabel categories
+    kategori_id = Column(Integer, ForeignKey('categories.id_kategori'))
+    status_id = Column(Integer, ForeignKey('status.id_status'))
+
+    # Mendefinisikan relasi dengan CategoryModel dan StatusModel
     kategori = relationship('CategoryModel', foreign_keys=[kategori_id])
     status = relationship('StatusModel', foreign_keys=[status_id])
 
-    def __init__(self, nama_produk, harga, kategori_id, status_id):
-        self.nama_produk = nama_produk
-        self.harga = harga
-        self.kategori_id = kategori_id
-        self.status_id = status_id
-
     def __repr__(self):
-        return f"{self.name}:{self.employee_id}"
-
-
-# model Kategori
-class CategoryModel(db.Model):
-    __tablename__ = 'categories'
-
-    id_kategori = db.Column(db.Integer, primary_key=True)
-    nama_kategori = db.Column(db.String(100))
-
-    def __init__(self, nama_kategori):
-        self.nama_kategori = nama_kategori
-
-    def __repr__(self):
-        return f"{self.name}:{self.employee_id}"
-
-
-# Model Status
-class StatusModel(db.Model):
-    __tablename__ = 'statuses'
-
-    id_status = db.Column(db.Integer, primary_key=True)
-    nama_status = db.Column(db.String(100))
-
-    def __init__(self, nama_status):
-        self.nama_status = nama_status
-
-    def __repr__(self):
-        return f"{self.name}:{self.employee_id}"
+        return "<ProdukModel(id_produk='%s', nama_produk='%s', harga='%s', kategori_id='%s', status_id='%s')>" % (self.id_produk, self.nama_produk, self.harga, self.kategori_id, self.status_id)
