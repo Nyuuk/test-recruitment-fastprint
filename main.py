@@ -3,9 +3,11 @@ from models import ProductModel, CategoryModel, StatusModel, url_database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fromAPI import start as stGetApi
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
 
 engine = create_engine(url_database)
 
@@ -128,4 +130,4 @@ def newProduct():
     }, 200
 
 if __name__ == "__main__":
-    app.run(host='localhost', port=5000)
+    app.run(host='0.0.0.0', port=5000)
