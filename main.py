@@ -44,7 +44,6 @@ def productsEdDel(id):
     else:
         dataRequest = request.form
 
-    print(request.headers.get("Content-Type"))
     if request.method == "PUT":
         # Validasi Request
         if not dataRequest or not dataRequest.get('nama_produk'):
@@ -52,9 +51,16 @@ def productsEdDel(id):
                 "code" : 400,
                 "message" : "Bad Request"
             }, 400
-        if dataRequest.get('harga') and not dataRequest.get('harga').isdigit():
+        
+        # harga harus di isi  dan harus berupa angka
+        if not dataRequest.get('harga'):
             return {
-                "code" : 4001,
+                "code" : 400,
+                "message" : "Bad Request"
+            }, 400
+        if not dataRequest.get('harga').isdigit():
+            return {
+                "code" : 400,
                 "message" : "Bad Request"
             }, 400
 
@@ -77,6 +83,50 @@ def productsEdDel(id):
         return {
             "code" : 200
         }, 200
+
+@app.route('/api/products/new', methods=["POST"])
+def newProduct():
+    dataRequest = []
+    if request.headers.get('Content-Type') == "application/json":
+        dataRequest = request.json
+    else:
+        dataRequest = request.form
+    
+    # Validasi Request
+    if not dataRequest or not dataRequest.get('nama_produk'):
+        return {
+            "code" : 400,
+            "message" : "Bad Request"
+        }, 400
+    
+    # harga harus di isi  dan harus berupa angka
+    if not dataRequest.get('harga'):
+        return {
+            "code" : 400,
+            "message" : "Bad Request"
+        }, 400
+    if not dataRequest.get('harga').isdigit():
+        return {
+            "code" : 400,
+            "message" : "Bad Request"
+        }, 400
+    
+    # Validasi apakah nama_produk sudah ada
+    dataDB = session.query(ProductModel).filter_by(nama_produk=dataRequest.get('nama_produk')).first()
+    if dataDB:
+        return {
+            "code" : 400,
+            "message" : "Bad Request"
+        }, 400
+
+    # new Product
+    new_product = ProductModel(nama_produk=dataRequest.get('nama_produk'), harga=dataRequest.get('harga'), kategori_id=(dataRequest.get('kategori_id') or None), status_id=(dataRequest.get('status_id') or None))
+
+    session.add(new_product)
+    session.commit()
+    return {
+        "code" : 200
+    }, 200
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000)
