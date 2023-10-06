@@ -105,5 +105,6 @@ def start():
     to_categori(dataCategories)
     to_status(dataStatus)
     to_product(datas)
+    session.close()
 
 #start()

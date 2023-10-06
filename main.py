@@ -12,9 +12,6 @@ CORS(app)
 engine = create_engine(url_database)
 
 
-Session = sessionmaker(bind=engine)
-session = Session()
-
 @app.route('/api/refresh_data', methods=["GET"])
 def refresh_data():
     stGetApi()
@@ -22,6 +19,8 @@ def refresh_data():
 
 @app.route('/api/products/getall', methods=["GET"])
 def getAll():
+    Session = sessionmaker(bind=engine)
+    session = Session()
     id_bisadijual = session.query(StatusModel).filter_by(nama_status="bisa dijual").first().id_status
     data = session.query(ProductModel).filter_by(status_id=id_bisadijual).all()
     
@@ -32,13 +31,17 @@ def getAll():
         "kategori_id" : session.query(CategoryModel).filter_by(id_kategori=data.kategori_id).first().nama_kategori,
         "status_id" : "bisa dijual"
     } for data in data]
+
     return jsonify({
         "data" : data,
         "code" : 200
     }), 200
+    session.close()
 
 @app.route('/api/products/<int:id>', methods=["PUT", "DELETE"])
 def productsEdDel(id):
+    Session = sessionmaker(bind=engine)
+    session = Session()
     dataRequest = []
     if request.headers.get('Content-Type') == "application/json":
         dataRequest = request.json
@@ -84,9 +87,13 @@ def productsEdDel(id):
         return {
             "code" : 200
         }, 200
+    session.close()
 
 @app.route('/api/products/new', methods=["POST"])
 def newProduct():
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     dataRequest = []
     if request.headers.get('Content-Type') == "application/json":
         dataRequest = request.json
@@ -128,6 +135,12 @@ def newProduct():
     return {
         "code" : 200
     }, 200
+    session.close()
+
+@app.route('/api/kategori/getall', methods=['GET'])
+def getAllKategori():
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
